@@ -427,13 +427,15 @@ function openBookingModal(tour) {
 
 /**
  * Đóng Modal đặt tour
+ * @param {boolean} force - Ép buộc đóng (dùng khi submit thành công)
  */
-function closeBookingModal() {
-  if (state.isSubmitting) return; // Không đóng khi đang gửi request
+function closeBookingModal(force = false) {
+  if (state.isSubmitting && !force) return; // Không cho đóng khi đang gửi request
 
   DOM.bookingModal.classList.add("hidden");
   document.body.style.overflow = "";
   state.selectedTour = null;
+  DOM.bookingForm.reset();
   resetFormErrors();
 }
 
@@ -474,7 +476,7 @@ async function handleBookingSubmit(e) {
     // Giả lập gửi thành công nếu chưa cấu hình backend thật
     setTimeout(() => {
       setSubmittingState(false);
-      closeBookingModal();
+      closeBookingModal(true);
       showToast(
         "Đặt tour thành công (Mô phỏng)!",
         `Mã giữ chỗ: BK-SIMULATED-01. Hãy cấu hình API_URL thật để ghi vào Google Sheet!`,
@@ -506,12 +508,13 @@ async function handleBookingSubmit(e) {
 
     if (result.status === "success") {
       const bookingId = result.data ? result.data.booking_id : "";
+      setSubmittingState(false);
+      closeBookingModal(true);
       showToast(
         "Đặt tour thành công!",
         `Mã đơn: ${bookingId}. Đội ngũ Annhi Travel sẽ liên hệ lại với bạn sớm nhất!`,
         "success",
       );
-      closeBookingModal();
     } else {
       throw new Error(result.message || "Không thể ghi nhận đơn đặt tour.");
     }
