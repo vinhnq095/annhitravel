@@ -215,18 +215,21 @@ function bindEvents() {
     DOM.consentCheckbox.addEventListener("change", () => clearConsentError());
   }
 
-  // Sự kiện khi click vào Thẻ Địa Điểm Nổi Bật (Lọc tour tương ứng)
-  const destCards = document.querySelectorAll(".dest-card");
-  destCards.forEach((card) => {
-    card.addEventListener("click", () => {
-      const dest = card.getAttribute("data-destination");
-      if (dest) {
-        DOM.searchInput.value = dest;
-        handleSearch();
-        const toursSection = document.getElementById("tours");
-        if (toursSection) {
-          toursSection.scrollIntoView({ behavior: "smooth" });
-        }
+  // Sự kiện khi click vào Nút Địa Điểm Nổi Bật (Lọc tour tương ứng)
+  const destButtons = document.querySelectorAll(".dest-btn");
+  destButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Đổi trạng thái active giữa các nút
+      destButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      const dest = btn.getAttribute("data-destination") || "";
+      DOM.searchInput.value = dest;
+      handleSearch();
+
+      const toursSection = document.getElementById("tours");
+      if (toursSection) {
+        toursSection.scrollIntoView({ behavior: "smooth" });
       }
     });
   });
