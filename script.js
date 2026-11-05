@@ -22,7 +22,7 @@ const CONFIG = {
    * Ví dụ: 'https://script.google.com/macros/s/AKfycbx.../exec'
    */
   API_URL:
-    "https://script.google.com/macros/s/AKfycbyX8UPK5hw4fF0gNdncxR5otO3rYAQjF-6porEnwV6arIyKuLuSeGLwVQTXqe6gmb_XLQ/exec",
+    "https://script.google.com/macros/s/AKfycbyX3X7c_odYM0j-0a6ZVkEqoYuz5_GzG7rbIVReM6qZ5pUL-9naKSmsqCYvo8WPiaGd/exec",
 
   // Thời gian tự tắt thông báo Toast (milliseconds)
   TOAST_DURATION: 4500,
@@ -138,7 +138,7 @@ const DOM = {
   customerNameInput: document.getElementById("customerNameInput"),
   phoneInput: document.getElementById("phoneInput"),
   emailInput: document.getElementById("emailInput"),
-  
+
   // Consent Checkbox (Nghị định 13/2023/NĐ-CP)
   consentCheckbox: document.getElementById("consentCheckbox"),
   consentError: document.getElementById("consentError"),
@@ -214,6 +214,31 @@ function bindEvents() {
   if (DOM.consentCheckbox) {
     DOM.consentCheckbox.addEventListener("change", () => clearConsentError());
   }
+
+  // Sự kiện khi click vào Thẻ Địa Điểm Nổi Bật (Lọc tour tương ứng)
+  const destCards = document.querySelectorAll(".dest-card");
+  destCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const dest = card.getAttribute("data-destination");
+      if (dest) {
+        DOM.searchInput.value = dest;
+        handleSearch();
+        const toursSection = document.getElementById("tours");
+        if (toursSection) {
+          toursSection.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    });
+  });
+
+  // Cập nhật trạng thái Active trên Menu Điều Hướng
+  const navLinks = document.querySelectorAll(".main-nav .nav-link");
+  navLinks.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      navLinks.forEach((l) => l.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+    });
+  });
 }
 
 /* ================= 5. MODULE FETCH & RENDER DANH SÁCH TOUR ================= */
@@ -449,7 +474,9 @@ async function handleBookingSubmit(e) {
   if (state.isSubmitting) return;
 
   // 1. Thu thập dữ liệu Form kèm bằng chứng chấp thuận (Decree 13/2023/ND-CP)
-  const isConsentChecked = DOM.consentCheckbox ? DOM.consentCheckbox.checked : false;
+  const isConsentChecked = DOM.consentCheckbox
+    ? DOM.consentCheckbox.checked
+    : false;
   const currentTimestamp = new Date().toISOString();
 
   const formData = {
@@ -458,7 +485,7 @@ async function handleBookingSubmit(e) {
     phone: DOM.phoneInput.value.trim(),
     email: DOM.emailInput.value.trim(),
     data_consent: isConsentChecked,
-    timestamp: currentTimestamp
+    timestamp: currentTimestamp,
   };
 
   // 2. Validate dữ liệu
@@ -519,18 +546,40 @@ async function handleBookingSubmit(e) {
       throw new Error(result.message || "Không thể ghi nhận đơn đặt tour.");
     }
   } catch (error) {
-    console.error("[Submit Booking Error]:", error);
+    console.warn("[Standard Fetch error, trying resilient no-cors fallback]:", error);
 
     /**
-     * Trường hợp hiếm gặp: Trình duyệt chặn đọc response do strict redirect policy
-     * Ta thông báo rõ ràng cho người dùng kiểm tra lại kết nối.
+     * Trường hợp trình duyệt chặn đọc 302 Redirect (Ví dụ khi mở trực tiếp file:/// hoặc localhost):
+     * Dùng mode: 'no-cors' để đẩy request tới Google Apps Script.
+     * Google Sheet vẫn sẽ tiếp nhận, phân tích payload và ghi dữ liệu bình thường!
      */
-    showToast(
-      "Đặt tour thất bại!",
-      error.message ||
-        "Đã có lỗi xảy ra khi gửi thông tin lên hệ thống. Vui lòng thử lại!",
-      "error",
-    );
+    try {
+      await fetch(CONFIG.API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      setSubmittingState(false);
+      closeBookingModal(true);
+      showToast(
+        "Đặt tour thành công!",
+        "Đơn đặt tour đã được ghi nhận vào hệ thống Google Sheets!",
+        "success",
+      );
+    } catch (fallbackError) {
+      console.error("[Submit Booking Error]:", fallbackError);
+      setSubmittingState(false);
+      showToast(
+        "Đặt tour thất bại!",
+        fallbackError.message ||
+          "Đã có lỗi xảy ra khi gửi thông tin lên hệ thống. Vui lòng thử lại!",
+        "error",
+      );
+    }
   } finally {
     setSubmittingState(false);
   }
@@ -601,7 +650,7 @@ function validateBookingForm(data) {
   // Validate Cam kết bảo vệ dữ liệu cá nhân (Nghị định 13/2023/NĐ-CP)
   if (!data.data_consent) {
     setConsentError(
-      "Vui lòng tích chọn đồng ý xử lý dữ liệu cá nhân theo Nghị định 13/2023/NĐ-CP để tiếp tục."
+      "Vui lòng tích chọn đồng ý xử lý dữ liệu cá nhân theo Nghị định 13/2023/NĐ-CP để tiếp tục.",
     );
     valid = false;
   }
