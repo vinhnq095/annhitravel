@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Annhi Travel - Hệ thống đặt tour du lịch cao cấp hàng đầu Việt Nam. Khám phá các điểm đến tuyệt mỹ với giá ưu đãi.">
+  <title>Annhi Travel | Khám Phá Thế Giới Theo Cách Của Bạn</title>
+  
+  <!-- Favicon & Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ================= HEADER & NAVIGATION ================= -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="#" class="brand-logo">
+        <span class="logo-icon"><i class="fa-solid fa-compass"></i></span>
+        <span class="logo-text">Annhi<span>Travel</span></span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="#tours" class="nav-link active">Danh Sách Tour</a>
+        <a href="#about" class="nav-link">Về Chúng Tôi</a>
+        <a href="#contact" class="nav-link">Liên Hệ</a>
+      </nav>
+
+      <div class="header-action">
+        <a href="#tours" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-paper-plane"></i> Đặt Tour Ngay
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO BANNER ================= -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <span class="hero-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Trải Nghiệm Du Lịch Đỉnh Cao</span>
+      <h1 class="hero-title">Khám Phá Kỳ Quan Cùng <span class="highlight-text">Annhi Travel</span></h1>
+      <p class="hero-subtitle">
+        Đặt tour du lịch nhanh chóng, an toàn và tiện lợi với hệ thống Headless CMS kết nối thời gian thực cùng Google Sheets.
+      </p>
+
+      <!-- Search & Filter Bar -->
+      <div class="search-filter-card">
+        <div class="search-input-group">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" placeholder="Tìm theo tên tour hoặc điểm đến (Phú Quốc, Sapa, Hạ Long...)" autocomplete="off">
+        </div>
+        <button class="btn btn-primary" id="searchBtn">
+          <i class="fa-solid fa-filter"></i> Tìm Kiếm
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MAIN CONTENT: TOURS GRID ================= -->
+  <main class="container main-content" id="tours">
+    <div class="section-header">
+      <div>
+        <span class="sub-heading">Điểm Đến Hấp Dẫn</span>
+        <h2 class="section-title">Danh Sách Tour Mới Nhất</h2>
+      </div>
+      <div class="filter-stats" id="tourCount">
+        Đang tải dữ liệu...
+      </div>
+    </div>
+
+    <!-- State 1: Skeleton Loading Placeholder -->
+    <div class="tours-grid" id="loadingState">
+      <div class="card skeleton-card">
+        <div class="skeleton-thumb"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line full"></div>
+          <div class="skeleton-line full"></div>
+        </div>
+      </div>
+      <div class="card skeleton-card">
+        <div class="skeleton-thumb"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line full"></div>
+          <div class="skeleton-line full"></div>
+        </div>
+      </div>
+      <div class="card skeleton-card">
+        <div class="skeleton-thumb"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line full"></div>
+          <div class="skeleton-line full"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 2: Actual Tours Grid -->
+    <div class="tours-grid hidden" id="toursGrid">
+      <!-- Cards rendered dynamically via script.js -->
+    </div>
+
+    <!-- State 3: Error State -->
+    <div class="state-container hidden" id="errorState">
+      <div class="state-icon error-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3 class="state-title">Không thể tải dữ liệu tour</h3>
+      <p class="state-desc" id="errorMessage">Đã xảy ra lỗi khi kết nối với máy chủ Google Apps Script.</p>
+      <button class="btn btn-primary" id="retryBtn">
+        <i class="fa-solid fa-rotate-right"></i> Thử Lại
+      </button>
+    </div>
+
+    <!-- State 4: Empty State -->
+    <div class="state-container hidden" id="emptyState">
+      <div class="state-icon empty-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+      <h3 class="state-title">Không tìm thấy tour phù hợp</h3>
+      <p class="state-desc">Hãy thử thay đổi từ khóa tìm kiếm hoặc lọc lại danh sách.</p>
+      <button class="btn btn-outline" id="clearSearchBtn">Xem Tất Cả Tour</button>
+    </div>
+  </main>
+
+  <!-- ================= ABOUT & FEATURES ================= -->
+  <section class="container features-section" id="about">
+    <div class="feature-item">
+      <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <h3 class="feature-title">Bảo Mật & Tin Cậy</h3>
+      <p class="feature-desc">Mọi thông tin đặt tour được lưu trữ tự động, minh bạch và tức thì trên Google Sheets.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+      <h3 class="feature-title">Tốc Độ Siêu Tốc</h3>
+      <p class="feature-desc">Xây dựng trên nền tảng Static HTML/JS tối ưu hóa bởi mạng lưới toàn cầu Cloudflare Pages.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><i class="fa-solid fa-headset"></i></div>
+      <h3 class="feature-title">Tư Vấn 24/7</h3>
+      <p class="feature-desc">Đội ngũ điều hành tour sẵn sàng hỗ trợ phản hồi và chăm sóc quý khách hàng mọi lúc.</p>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer" id="contact">
+    <div class="container footer-container">
+      <div class="footer-col">
+        <div class="brand-logo footer-logo">
+          <span class="logo-icon"><i class="fa-solid fa-compass"></i></span>
+          <span class="logo-text">Annhi<span>Travel</span></span>
+        </div>
+        <p class="footer-text">Hệ thống Website Tour Du Lịch Static chuẩn Headless CMS, triển khai trên Cloudflare Pages & Google Apps Script.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Liên Hệ Hỗ Trợ</h4>
+        <ul class="footer-links">
+          <li><i class="fa-solid fa-phone"></i> Hotline: 0988.123.456</li>
+          <li><i class="fa-solid fa-envelope"></i> Email: booking@annhitravel.vn</li>
+          <li><i class="fa-solid fa-location-dot"></i> Địa chỉ: Tòa nhà Landmark, TP. Hồ Chí Minh</li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Kiến Trúc Kỹ Thuật</h4>
+        <div class="tech-tags">
+          <span class="tech-tag">Cloudflare Pages</span>
+          <span class="tech-tag">Google Sheets CMS</span>
+          <span class="tech-tag">Google Apps Script</span>
+          <span class="tech-tag">Vanilla JS WHATWG</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Annhi Travel. Toàn bộ bản quyền được bảo lưu.</p>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL ĐẶT TOUR (BOOKING MODAL) ================= -->
+  <div class="modal-overlay hidden" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    
+    <div class="modal-card">
+      <!-- Nút đóng modal -->
+      <button class="modal-close-btn" id="modalCloseBtn" aria-label="Đóng cửa sổ">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Header modal -->
+      <div class="modal-header">
+        <span class="modal-tag"><i class="fa-solid fa-ticket"></i> Đặt Chỗ Ngay</span>
+        <h3 class="modal-title" id="modalTitle">Đăng Ký Đặt Tour</h3>
+        <p class="modal-subtitle">Vui lòng điền thông tin để Annhi Travel xác nhận và giữ chỗ cho bạn.</p>
+      </div>
+
+      <!-- Preview Tour được chọn -->
+      <div class="selected-tour-preview" id="selectedTourPreview">
+        <div class="preview-img-wrap">
+          <img id="previewTourImg" src="" alt="Tour Image">
+        </div>
+        <div class="preview-info">
+          <h4 id="previewTourName" class="preview-title">Tên Tour</h4>
+          <div class="preview-meta">
+            <span id="previewTourDuration"><i class="fa-regular fa-clock"></i> --</span>
+            <span id="previewTourPrice" class="preview-price">0 đ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form nhập liệu -->
+      <form id="bookingForm" class="booking-form" novalidate>
+        <!-- Trường ẩn chứa Tour ID -->
+        <input type="hidden" id="tourIdInput" name="tour_id" value="">
+
+        <!-- Họ và tên -->
+        <div class="form-group">
+          <label for="customerNameInput" class="form-label">
+            Họ và tên khách hàng <span class="required">*</span>
+          </label>
+          <div class="input-wrapper">
+            <i class="fa-regular fa-user input-icon"></i>
+            <input 
+              type="text" 
+              id="customerNameInput" 
+              name="customer_name" 
+              class="form-control" 
+              placeholder="Ví dụ: Nguyễn Văn An" 
+              required
+            >
+          </div>
+          <span class="field-error" id="nameError"></span>
+        </div>
+
+        <!-- Số điện thoại -->
+        <div class="form-group">
+          <label for="phoneInput" class="form-label">
+            Số điện thoại liên hệ <span class="required">*</span>
+          </label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-phone input-icon"></i>
+            <input 
+              type="tel" 
+              id="phoneInput" 
+              name="phone" 
+              class="form-control" 
+              placeholder="Ví dụ: 0912345678" 
+              required
+            >
+          </div>
+          <span class="field-error" id="phoneError"></span>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="emailInput" class="form-label">
+            Địa chỉ Email nhận vé xác nhận <span class="required">*</span>
+          </label>
+          <div class="input-wrapper">
+            <i class="fa-regular fa-envelope input-icon"></i>
+            <input 
+              type="email" 
+              id="emailInput" 
+              name="email" 
+              class="form-control" 
+              placeholder="Ví dụ: nguyenvana@gmail.com" 
+              required
+            >
+          </div>
+          <span class="field-error" id="emailError"></span>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" id="modalCancelBtn">Hủy Bỏ</button>
+          <button type="submit" class="btn btn-primary btn-submit" id="submitBookingBtn">
+            <span class="btn-text">Xác Nhận Đặt Tour</span>
+            <span class="btn-loading hidden">
+              <i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= TOAST NOTIFICATION CONTAINER ================= -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
+
