@@ -138,6 +138,11 @@ const DOM = {
   customerNameInput: document.getElementById("customerNameInput"),
   phoneInput: document.getElementById("phoneInput"),
   emailInput: document.getElementById("emailInput"),
+  
+  // Consent Checkbox (Nghị định 13/2023/NĐ-CP)
+  consentCheckbox: document.getElementById("consentCheckbox"),
+  consentError: document.getElementById("consentError"),
+  consentGroup: document.querySelector(".form-consent-group"),
 
   // Form Errors
   nameError: document.getElementById("nameError"),
@@ -206,6 +211,9 @@ function bindEvents() {
   DOM.emailInput.addEventListener("input", () =>
     clearFieldError(DOM.emailInput, DOM.emailError),
   );
+  if (DOM.consentCheckbox) {
+    DOM.consentCheckbox.addEventListener("change", () => clearConsentError());
+  }
 }
 
 /* ================= 5. MODULE FETCH & RENDER DANH SÁCH TOUR ================= */
@@ -438,12 +446,17 @@ async function handleBookingSubmit(e) {
 
   if (state.isSubmitting) return;
 
-  // 1. Thu thập dữ liệu Form
+  // 1. Thu thập dữ liệu Form kèm bằng chứng chấp thuận (Decree 13/2023/ND-CP)
+  const isConsentChecked = DOM.consentCheckbox ? DOM.consentCheckbox.checked : false;
+  const currentTimestamp = new Date().toISOString();
+
   const formData = {
     tour_id: DOM.tourIdInput.value.trim(),
     customer_name: DOM.customerNameInput.value.trim(),
     phone: DOM.phoneInput.value.trim(),
     email: DOM.emailInput.value.trim(),
+    data_consent: isConsentChecked,
+    timestamp: currentTimestamp
   };
 
   // 2. Validate dữ liệu
@@ -582,6 +595,14 @@ function validateBookingForm(data) {
     valid = false;
   }
 
+  // Validate Cam kết bảo vệ dữ liệu cá nhân (Nghị định 13/2023/NĐ-CP)
+  if (!data.data_consent) {
+    setConsentError(
+      "Vui lòng tích chọn đồng ý xử lý dữ liệu cá nhân theo Nghị định 13/2023/NĐ-CP để tiếp tục."
+    );
+    valid = false;
+  }
+
   return valid;
 }
 
@@ -660,6 +681,23 @@ function resetFormErrors() {
   clearFieldError(DOM.customerNameInput, DOM.nameError);
   clearFieldError(DOM.phoneInput, DOM.phoneError);
   clearFieldError(DOM.emailInput, DOM.emailError);
+  clearConsentError();
+}
+
+/**
+ * Hiển thị lỗi trường đồng ý bảo vệ dữ liệu cá nhân
+ */
+function setConsentError(message) {
+  if (DOM.consentGroup) DOM.consentGroup.classList.add("has-error");
+  if (DOM.consentError) DOM.consentError.textContent = message;
+}
+
+/**
+ * Xóa lỗi trường đồng ý bảo vệ dữ liệu cá nhân
+ */
+function clearConsentError() {
+  if (DOM.consentGroup) DOM.consentGroup.classList.remove("has-error");
+  if (DOM.consentError) DOM.consentError.textContent = "";
 }
 
 /**

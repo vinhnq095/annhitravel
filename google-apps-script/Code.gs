@@ -111,7 +111,7 @@ function doPost(e) {
     if (!sheetBookings) {
       // Tự động tạo nếu chưa có
       sheetBookings = ss.insertSheet(CONFIG.SHEET_BOOKINGS);
-      sheetBookings.appendRow(['booking_id', 'tour_id', 'customer_name', 'phone', 'email', 'date_booked']);
+      sheetBookings.appendRow(['booking_id', 'tour_id', 'customer_name', 'phone', 'email', 'consent_status', 'consent_timestamp', 'date_booked']);
     }
 
     // 1. Phân tích cú pháp dữ liệu gửi lên (Hỗ trợ cả JSON string và form-urlencoded)
@@ -131,13 +131,22 @@ function doPost(e) {
     const customerName = String(payload.customer_name || '').trim();
     const phone = String(payload.phone || '').trim();
     const email = String(payload.email || '').trim();
+    const dataConsent = payload.data_consent === true || String(payload.data_consent).toLowerCase() === 'true';
 
-    // 2. Validate dữ liệu đầu vào
+    // 2. Validate dữ liệu đầu vào & Tính tuân thủ Nghị định 13/2023/NĐ-CP
     if (!tourId || !customerName || !phone) {
       return createJsonResponse({
         status: 'error',
         message: 'Dữ liệu không hợp lệ! Vui lòng cung cấp đầy đủ: tour_id, customer_name, phone.'
       }, 400);
+    }
+
+    // Nghị định 13/2023/NĐ-CP: Bắt buộc phải có sự chấp thuận của chủ thể dữ liệu trước khi xử lý
+    if (!dataConsent) {
+      return createJsonResponse({
+        status: 'error',
+        message: 'Yêu cầu bị từ chối: Khách hàng chưa xác nhận đồng ý xử lý dữ liệu cá nhân theo Nghị định 13/2023/NĐ-CP.'
+      }, 403);
     }
 
     // 3. Khởi tạo mã Booking và ngày giờ đặt (GMT+7: Việt Nam)
@@ -146,15 +155,18 @@ function doPost(e) {
     const randomSuffix = Math.floor(100 + Math.random() * 900); // 3 số ngẫu nhiên
     const bookingId = `BK-${timeCode}-${randomSuffix}`;
     const dateBooked = Utilities.formatDate(now, 'GMT+7', 'yyyy-MM-dd HH:mm:ss');
+    const consentTimestamp = String(payload.timestamp || dateBooked).trim();
 
     // 4. Thêm dòng mới vào Sheet "Bookings"
-    // Cột theo quy định: booking_id, tour_id, customer_name, phone, email, date_booked
+    // Cột theo quy định: booking_id, tour_id, customer_name, phone, email, consent_status, consent_timestamp, date_booked
     sheetBookings.appendRow([
       bookingId,
       tourId,
       customerName,
       phone,
       email,
+      'Đồng ý (Consent Granted)',
+      consentTimestamp,
       dateBooked
     ]);
 
@@ -288,7 +300,7 @@ function setupDatabase() {
     sheetBookings.clear();
   }
 
-  const bookingHeaders = ['booking_id', 'tour_id', 'customer_name', 'phone', 'email', 'date_booked'];
+  const bookingHeaders = ['booking_id', 'tour_id', 'customer_name', 'phone', 'email', 'consent_status', 'consent_timestamp', 'date_booked'];
   sheetBookings.appendRow(bookingHeaders);
 
   // Định dạng Header Bookings

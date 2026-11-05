@@ -278,6 +278,23 @@
           <span class="field-error" id="emailError"></span>
         </div>
 
+        <!-- Cam kết đồng ý xử lý dữ liệu cá nhân theo Nghị định 13/2023/NĐ-CP -->
+        <div class="form-group form-consent-group">
+          <label class="consent-checkbox-wrapper" for="consentCheckbox">
+            <input 
+              type="checkbox" 
+              id="consentCheckbox" 
+              name="data_consent" 
+              class="consent-checkbox" 
+              required
+            >
+            <span class="consent-text">
+              Tôi đồng ý cung cấp thông tin cá nhân để <strong>Annhi Travel</strong> liên hệ, xử lý đặt tour và lưu trữ theo quy định bảo vệ dữ liệu cá nhân (<span class="legal-badge">Nghị định 13/2023/NĐ-CP</span>). <span class="required">*</span>
+            </span>
+          </label>
+          <span class="field-error" id="consentError"></span>
+        </div>
+
         <!-- Submit Button -->
         <div class="modal-actions">
           <button type="button" class="btn btn-outline" id="modalCancelBtn">Hủy Bỏ</button>

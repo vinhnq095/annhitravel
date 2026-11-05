@@ -55,7 +55,7 @@ Hệ thống sử dụng Google Spreadsheet gồm 2 trang tính (Sheets) chính:
 | F | `image_url` | String (URL) | `https://images.unsplash.com/...` | Link ảnh đại diện độ nét cao |
 | G | `description` | String | `Trải nghiệm cáp treo vượt biển...` | Mô tả tóm tắt điểm nổi bật |
 
-### Sheet 2: `Bookings` (Lưu thông tin khách hàng đặt tour)
+### Sheet 2: `Bookings` (Lưu thông tin khách hàng đặt tour & bằng chứng tuân thủ NĐ 13/2023/NĐ-CP)
 | Cột | Tên Cột | Kiểu Dữ Liệu | Ví Dụ | Giải Thích |
 |:---:|:---|:---|:---|:---|
 | A | `booking_id` | String | `BK-20261105-144000-852` | Mã đơn sinh tự động độc nhất |
@@ -63,7 +63,9 @@ Hệ thống sử dụng Google Spreadsheet gồm 2 trang tính (Sheets) chính:
 | C | `customer_name` | String | `Nguyễn Văn An` | Họ và tên khách hàng |
 | D | `phone` | String | `0912345678` | Số điện thoại liên hệ |
 | E | `email` | String | `nguyenvana@gmail.com` | Email nhận xác nhận đặt chỗ |
-| F | `date_booked` | Datetime | `2026-11-05 14:40:00` | Thời điểm ghi nhận (GMT+7) |
+| F | `consent_status` | String | `Đồng ý (Consent Granted)` | Trạng thái đồng ý xử lý DLCN (NĐ 13) |
+| G | `consent_timestamp` | String/ISO | `2026-11-05T15:40:00.000Z` | Dấu thời gian làm bằng chứng pháp lý |
+| H | `date_booked` | Datetime | `2026-11-05 14:40:00` | Thời điểm ghi nhận hệ thống (GMT+7) |
 
 ---
 
